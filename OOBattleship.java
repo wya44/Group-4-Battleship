@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.util.*;
+import java.lang.Math;
 
 public class OOBattleship {
     public class Player {
@@ -32,14 +33,16 @@ public class OOBattleship {
                 {{-1, -1}, {-1, -1}, {-1, -1}},
                 {{-1, -1}, {-1, -1}}};
 
-        Stack<Integer> boatsSunk;
+        Stack<Integer> currentBoatsSunk;
+
+        Stack<Integer> previousBoatsSunk;
         
-        int[] previousBoatsSunk = {0, 0, 0, 0};
+        int[] totalBoatsSunk = {0, 0, 0, 0};
 
-        int name;
+        String name;
 
-        // Contructor
-        public Player(int label) {
+        // Constructor
+        public Player(String label) {
             name = label;
         }
 
@@ -56,13 +59,19 @@ public class OOBattleship {
             return coords;
         }
 
-        public Stack<Integer> getBoatsSunk() {
-            return boatsSunk;
+        public int getHowManySunk() {
+            return currentBoatsSunk.size();
         }
 
-        public int getRecentBoatSunk() {
-            return boatsSunk.peek();
+        public int getRecentBoatSunk() { return currentBoatsSunk.peek(); }
+
+        public int getPreviousBoatSunk() { return previousBoatsSunk.peek(); }
+
+        public int[] getTotalBoatsSunk() {
+            return totalBoatsSunk;
         }
+
+        public void addNewBoatSunk(int boat) { currentBoatsSunk.add(boat); }
 
         // Methods
         public void placeBoatHorizontally(int startRow, int startColumn, int boatLength) {
@@ -98,6 +107,51 @@ public class OOBattleship {
             }
             // If any boat section remains, return true. If not return false
             return still_alive_check > 0;
+        }
+
+
+        public void didISinkABoat(Player opp) {
+            for (int boat = 0; boat < 4; boat++) {
+                int boat_check = 0;
+                for (int section = 0; section < opp.getCoords()[boat].length; section++) {
+                    if (opp.getBoard()[opp.getCoords()[boat][section][0] - 1]
+                            [opp.getCoords()[boat][section][0] - 1].equals("B")) boat_check++;
+                }
+                if (boat_check == 0 && opp.getTotalBoatsSunk()[boat] != 1) {
+                    if (boat == 0) {
+                        opp.getTotalBoatsSunk()[boat] = 1;
+                        opp.addNewBoatSunk(boat);
+                        System.out.println("You sank your opponent's 5 unit boat\n");
+                    } else if (boat == 1) {
+                        opp.getTotalBoatsSunk()[boat] = 1;
+                        opp.addNewBoatSunk(boat);
+                        System.out.println("You sank your opponent's 4 unit boat\n");
+                    } else if (boat == 2) {
+                        opp.getTotalBoatsSunk()[boat] = 1;
+                        opp.addNewBoatSunk(boat);
+                        System.out.println("You sank your opponent's 3 unit boat\n");
+                    } else {
+                        opp.getTotalBoatsSunk()[boat] = 1;
+                        opp.addNewBoatSunk(boat);
+                        System.out.println("You sank your opponent's 2 unit boat\n");
+                    }
+                }
+            }
+        }
+
+
+        public void didMyBoatsGetSunk(Player player) {
+            if (player.getRecentBoatSunk() != player.getPreviousBoatSunk()) {
+                if (player.getRecentBoatSunk() == 0) System.out.println("Your 5 unit boat was sunk!\n");
+                if (player.getRecentBoatSunk() == 1) System.out.println("Your 4 unit boat was sunk!\n");
+                if (player.getRecentBoatSunk() == 2) System.out.println("Your 3 unit boat was sunk!\n");
+                else System.out.println("Your 2 unit boat was sunk!\n");
+            }
+        }
+
+
+        public void populateBoard(Player player) {
+            
         }
     }
 
@@ -145,18 +199,6 @@ public class OOBattleship {
 
     public static void playerVsPlayerRound(int player) {
         // Copy from previous Battleship code but use Player class for updating board
-        // Might be able to incorporate this into the Player class
-    }
-
-
-    public static void oppBoatSinkCheck(String[][] board, int[][][] coords, Stack<Integer> boatsSunk, int player) {
-        // I'll do this one since I have an idea of how I want to implement the Stack for boatsSunk
-        // Might be able to incorporate this into the Player class
-    }
-
-
-    public static void playerBoatSinkCheck(int[] previousBoatsSunk, Stack<Integer> boatsSunk) {
-        // I'll do this one since I have an idea of how I want to implement the Stack for boatsSunk
         // Might be able to incorporate this into the Player class
     }
 

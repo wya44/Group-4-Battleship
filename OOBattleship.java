@@ -2,7 +2,11 @@ import java.awt.*;
 import java.util.*;
 
 public class OOBattleship {
+    // This is the Player class, which stores all the necessary data for each player in the game
+    // Each player has a name, board, target grid, corresponding displays,
+    // coordinates, and 2 stacks and an integer array for tracking sunk ships
     public static class Player {
+        // This is the board -> it keeps track of a player's boats
         String[][] board = {{"~", "~", "~", "~", "~", "~", "~", "~", "~", "~"},
                 {"~", "~", "~", "~", "~", "~", "~", "~", "~", "~"},
                 {"~", "~", "~", "~", "~", "~", "~", "~", "~", "~"},
@@ -14,6 +18,7 @@ public class OOBattleship {
                 {"~", "~", "~", "~", "~", "~", "~", "~", "~", "~"},
                 {"~", "~", "~", "~", "~", "~", "~", "~", "~", "~"}};
 
+        // This is the target Grid -> it keeps track of the player's hits and misses on their opponent
         String[][] targetGrid = {{"~", "~", "~", "~", "~", "~", "~", "~", "~", "~"},
                 {"~", "~", "~", "~", "~", "~", "~", "~", "~", "~"},
                 {"~", "~", "~", "~", "~", "~", "~", "~", "~", "~"},
@@ -25,24 +30,36 @@ public class OOBattleship {
                 {"~", "~", "~", "~", "~", "~", "~", "~", "~", "~"},
                 {"~", "~", "~", "~", "~", "~", "~", "~", "~", "~"}};
 
+        // This is the display that shows the player's board
         Graphics2D boardDisplay;
 
+        // This is the display that shows the player's target grid
         Graphics2D targetGridDisplay;
 
+        // This is the coordinate array -> it stores the coordinates of each of the player's boats
         int[][][] coords = {{{-1, -1}, {-1, -1}, {-1, -1}, {-1, -1}, {-1, -1}},
                 {{-1, -1}, {-1, -1}, {-1, -1}, {-1, -1}},
                 {{-1, -1}, {-1, -1}, {-1, -1}},
                 {{-1, -1}, {-1, -1}}};
 
+        // This is the stack that keeps track of the most recent boat sunk by the player
         Stack<Integer> currentBoatsSunk;
 
+        // This is the stack that copies currentBoatsSunk before the player's turn
+        // which allows the player to see if they sunk a boat during their turn
         Stack<Integer> previousBoatsSunk;
 
+        // This is an array which keeps track of which boats have been sunk throughout the game
         int[] boatsSunk = {0, 0, 0, 0};
 
+        // This is the player's name
         String name;
 
+
+        ////////////////////////////////////////////////////////////
         // Constructor
+        ////////////////////////////////////////////////////////////
+        // The computer doesn't get a target grid display because it is not needed for the functionality of the game
         public Player(String label) {
             name = label;
             currentBoatsSunk = new Stack<>();
@@ -51,7 +68,10 @@ public class OOBattleship {
             if (!name.equals("com")) targetGridDisplay = createTargetGridDisplay();
         }
 
-        //Getters and Setters
+
+        ////////////////////////////////////////////////////////////
+        //Getters
+        ////////////////////////////////////////////////////////////
         public String getName() { return name; }
 
         public String[][] getBoard() { return board; }
@@ -72,9 +92,18 @@ public class OOBattleship {
             else return previousBoatsSunk.peek();
         }
 
+
+        ////////////////////////////////////////////////////////////
+        // Setters
+        ////////////////////////////////////////////////////////////
         public void addPreviousBoatSunk(int boat) { previousBoatsSunk.add(boat); }
 
-        // Methods
+
+        ////////////////////////////////////////////////////////////
+        // Class methods
+        ////////////////////////////////////////////////////////////
+
+        // This method is used to store a horizontal boat into the player's board and coordinate arrays
         private void placeBoatHorizontally(int startRow, int startColumn, int boatLength) {
             int boat_section = 0;
             for (int column = startColumn; column < (startColumn + boatLength); column++) {
@@ -85,6 +114,7 @@ public class OOBattleship {
             }
         }
 
+        // This method is used to store a vertical boat into the player's board and coordinate arrays
         private void placeBoatVertically(int startRow, int startColumn, int boatLength) {
             int boat_section = 0;
             for (int row = startRow; row < (startRow + boatLength); row++) {
@@ -95,6 +125,8 @@ public class OOBattleship {
             }
         }
 
+        // This method is used to let the player select which direction they want to place their boat
+        // 0 represents horizontal and 1 represents vertical
         public int chooseBoatDirection(int boat_len) {
             Scanner input = new Scanner(System.in);
             int boat_direction;
@@ -115,6 +147,7 @@ public class OOBattleship {
             return boat_direction;
         }
 
+        // This method is used to let the player select the row they want their new boat to start on
         public int chooseStartingRow(int max_row) {
             Scanner input = new Scanner(System.in);
             int boat_row;
@@ -131,6 +164,7 @@ public class OOBattleship {
             return boat_row;
         }
 
+        // This method is used to let the player select the column they want their new boat to start on
         public int chooseStartingColumn(int max_column) {
             Scanner input = new Scanner(System.in);
             int boat_column;
@@ -148,6 +182,7 @@ public class OOBattleship {
             return boat_column;
         }
 
+        // This method is used to check if the newly placed boat will collide with a previously placed boat
         private boolean collisionCheck(int boat_direction, int boat_len, int boat_row, int boat_column) {
             boolean collision_check = false;
             if (boat_direction == 0) {
@@ -172,6 +207,7 @@ public class OOBattleship {
             return collision_check;
         }
 
+        // This method is used to instantiate the player's board display
         private Graphics2D createBoardDisplay() {
             // Create Drawing Panel with a size of 330 x 330
             DrawingPanel battlefield = new DrawingPanel(330, 330);
@@ -192,6 +228,8 @@ public class OOBattleship {
                 g.drawString(String.valueOf(i), i * 30 + 10, 19);
                 g.drawString(String.valueOf(i), 10, i * 30 + 19);
             }
+
+            // Place label on display based on the name of the player
             if (name.equals("com")) {
                 g.setFont(new Font("Monospaced", Font.BOLD, 10));
                 g.drawString("COM", 2, 19);
@@ -203,6 +241,7 @@ public class OOBattleship {
             return g;
         }
 
+        // This method is used to instantiate the player's target grid display
         private Graphics2D createTargetGridDisplay() {
             // Create Drawing Panel with a size of 330 x 330
             DrawingPanel battlefield = new DrawingPanel(330, 330);
@@ -223,6 +262,8 @@ public class OOBattleship {
                 g.drawString(String.valueOf(i), i * 30 + 10, 19);
                 g.drawString(String.valueOf(i), 10, i * 30 + 19);
             }
+
+            // Place label on display based on the name of the player
             g.setFont(new Font("Monospaced", Font.BOLD, 10));
             if (name.equals("player1")) g.drawString("OPP1", 5, 19);
             else g.drawString("OPP2", 5, 19);
@@ -231,6 +272,7 @@ public class OOBattleship {
             return g;
         }
 
+        // This method is used to place a boat on the player's board display using the player's coordinate array
         private void drawBoat(int boat_len) {
             // Set color to LIGHT GRAY for the inner shading of each boat
             boardDisplay.setColor(Color.LIGHT_GRAY);
@@ -254,6 +296,7 @@ public class OOBattleship {
             }
         }
 
+        // This method is used to update the player's board display with their opponents hits and misses
         public void redrawBoardDisplay(Player opp) {
             // use player's boardDisplay and opponent's targetGrid to update board display between rounds
             // Set font for the grid labels
@@ -296,6 +339,7 @@ public class OOBattleship {
             }
         }
 
+        // This method is used to update the player's target grid display with their hits and misses on their opponent
         public void redrawTargetGridDisplay() {
             // use player's targetGridDisplay and player's targetGrid to update target display between rounds
             // Set font for the grid labels
@@ -330,18 +374,23 @@ public class OOBattleship {
             }
         }
 
+        // This method is used to hide the player's board display in the vs mode so their opponent can't peek
         public void hideBoardDisplay() {
             // draw rectangle to cover player's boardDisplay so opponent can't see it during their turn
             boardDisplay.setColor(Color.CYAN);
             boardDisplay.fillRect(0, 0, 329, 329);
         }
 
+        // This method is used to hide the player's target grid display in the vs mode so their opponent can't peek
         public void hideTargetGridDisplay() {
             // draw rectangle to cover player's targetGridDisplay so opponent can't see it during their turn
             targetGridDisplay.setColor(Color.CYAN);
             targetGridDisplay.fillRect(0, 0, 329, 329);
         }
 
+        // This method is used to populate the player's board with their boats
+        // The computer randomly selects coordinates until they place boats that don't collide
+        // The players select the direction and starting row and column of each boat
         public void populateBoard() {
             // Initialize necessary variables for boat placement
             int boat_row = 0, boat_column = 0, boat_direction;
@@ -428,7 +477,8 @@ public class OOBattleship {
             }
         }
 
-
+        // This method is used to update the current player if one of their boats had been sunk
+        // during their opponents turn
         public void didOneOfMyBoatsGetSunk(Player opp) {
             if (opp.getRecentBoatSunk() != opp.getPreviousBoatSunk()) {
                 if (opp.getRecentBoatSunk() == 0) System.out.println("Your 5 unit boat was sunk!\n");
@@ -438,6 +488,8 @@ public class OOBattleship {
             }
         }
 
+        // This method is used to update the current player if they sank one of their opponent's boats
+        // during their current turn. It also adds the boat that was sunk to the player's boats sunk array and stack
         public void didISinkABoat(Player opp) {
             for (int boat = 0; boat < 4; boat++) {
                 int boat_check = 0;
@@ -469,29 +521,12 @@ public class OOBattleship {
     }
 
 
-    public static void drawExplosion(Graphics2D board, int x, int y, int r) {
-        // Ovals
-        board.setColor(Color.ORANGE);
-        board.fillOval (r * x + 31, r * y + 31, 29, 29);
-        board.setColor(Color.RED);
-        board.fillOval (r * x + 38, r * y + 38, 15, 15);
-        board.setColor(Color.YELLOW);
-        board.fillOval (r * x + 43, r * y + 43, 5, 5);
-        board.setColor(Color.DARK_GRAY);
-        board.drawOval(r * x + 31, r * y + 31, 29, 29);
-        // lines
-        // top left
-        board.drawLine(r * x + 35, r * y + 35, r * x + 30, r * y + 30);
-        // top right
-        board.drawLine(r * x + 55, r * y + 35, r * x + 60, r * y + 30);
-        // bottom left
-        board.drawLine(r * x + 35, r * y + 55, r * x + 30, r * y + 60);
-        // bottom right
-        board.drawLine(r * x + 55, r * y + 55, r * x + 60, r * y + 60);
-    }
+    ////////////////////////////////////////////////////////////
+    // Main gameplay method
+    ////////////////////////////////////////////////////////////
 
+    // This is the main code of the game
     public static void main(String[] args) {
-        //Main gameplay here
         System.out.println("Welcome to Battleship!");
         String mode = modeSelect();
         clearScreen();
@@ -662,7 +697,38 @@ public class OOBattleship {
     }
 
 
-    // This function is used to get the player to select the mode they wish to play
+    ////////////////////////////////////////////////////////////
+    // Helper methods
+    ////////////////////////////////////////////////////////////
+
+    // This method is used to print an explosion on the player's displays
+    // These explosions represent a hit
+    public static void drawExplosion(Graphics2D board, int x, int y, int r) {
+        // Ovals
+        board.setColor(Color.ORANGE);
+        board.fillOval (r * x + 31, r * y + 31, 29, 29);
+        board.setColor(Color.RED);
+        board.fillOval (r * x + 38, r * y + 38, 15, 15);
+        board.setColor(Color.YELLOW);
+        board.fillOval (r * x + 43, r * y + 43, 5, 5);
+        board.setColor(Color.DARK_GRAY);
+        board.drawOval(r * x + 31, r * y + 31, 29, 29);
+        // lines
+        // top left
+        board.drawLine(r * x + 35, r * y + 35, r * x + 30, r * y + 30);
+        // top right
+        board.drawLine(r * x + 55, r * y + 35, r * x + 60, r * y + 30);
+        // bottom left
+        board.drawLine(r * x + 35, r * y + 55, r * x + 30, r * y + 60);
+        // bottom right
+        board.drawLine(r * x + 55, r * y + 55, r * x + 60, r * y + 60);
+    }
+
+
+
+
+
+    // This method is used to get the player to select the mode they wish to play
     public static String modeSelect() {
         // Open a scanner so the user can input their preferred mode
         Scanner scanner = new Scanner(System.in);
@@ -684,6 +750,7 @@ public class OOBattleship {
     }
 
 
+    // This method is used to clear the console
     public static void clearScreen() {
         for (int i = 0; i < 50; i++) {
             System.out.println();
@@ -691,6 +758,7 @@ public class OOBattleship {
     }
 
 
+    // This method is used to ask the player if they wish to retreat or attack before they take their turn
     public static String retreatOrAttack() {
         Scanner input = new Scanner(System.in);
         String user_choice = "";
@@ -704,6 +772,7 @@ public class OOBattleship {
     }
 
 
+    // This method is used to let the player select a row to fire their rocket during their turn
     public static int selectRocketRow() {
         Scanner input = new Scanner(System.in);
         int rocket_row;
@@ -722,6 +791,7 @@ public class OOBattleship {
     }
 
 
+    // This method is used to let the player select a column to fire their rocket during their turn
     public static int selectRocketColumn() {
         Scanner input = new Scanner(System.in);
         int rocket_column;
@@ -740,6 +810,9 @@ public class OOBattleship {
     }
 
 
+    // This method is used to let each player fire rockets at their opponent
+    // The computer randomly selects coordinates that they haven't previously chosen
+    // The player selects the coordinates they want to fire upon (as long as it's a new set of coordinates)
     public static void pvp(Player attacker, Player defender) {
         int rocket_row, rocket_column;
         if (attacker.getName().equals("com")) {
@@ -776,11 +849,14 @@ public class OOBattleship {
     }
 
 
+    // This method is used as a boolean flag that checks to see if either player has won the game
+    // Once one player has won the game, this method returns false and the game loop ends
     public static boolean winConditionCheck(Player p1, Player p2) {
         return (p1.getHowManySunk() < 4 && p2.getHowManySunk() < 4);
     }
 
 
+    // This method is used to decide the winner of the game once the game loop has ended
     public static String winnerCheck(Player p1, Player p2) {
         if (p1.getHowManySunk() == 4) return p1.getName();
         else return p2.getName();

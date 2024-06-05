@@ -112,6 +112,7 @@ public class OOBattleship {
                 boat_direction = input.nextInt();
                 if (boat_direction != 0 && boat_direction != 1) System.out.println("\nInvalid input\n");
             } while (boat_direction != 0 && boat_direction != 1);
+            clearScreen();
             return boat_direction;
         }
 
@@ -144,6 +145,7 @@ public class OOBattleship {
                 boat_column = input.nextInt();
                 if (boat_column < 1 || boat_column > max_column) System.out.println("\nInvalid input\n");
             } while (boat_column < 1 || boat_column > max_column);
+            clearScreen();
             return boat_column;
         }
 

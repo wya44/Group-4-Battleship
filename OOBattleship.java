@@ -25,9 +25,9 @@ public class OOBattleship {
                 {"~", "~", "~", "~", "~", "~", "~", "~", "~", "~"},
                 {"~", "~", "~", "~", "~", "~", "~", "~", "~", "~"}};
 
-        Graphics boardDisplay;
+        Graphics2D boardDisplay;
 
-        Graphics targetGridDisplay;
+        Graphics2D targetGridDisplay;
 
         int[][][] coords = {{{-1, -1}, {-1, -1}, {-1, -1}, {-1, -1}, {-1, -1}},
                 {{-1, -1}, {-1, -1}, {-1, -1}, {-1, -1}},
@@ -112,7 +112,6 @@ public class OOBattleship {
                 boat_direction = input.nextInt();
                 if (boat_direction != 0 && boat_direction != 1) System.out.println("\nInvalid input\n");
             } while (boat_direction != 0 && boat_direction != 1);
-            clearScreen();
             return boat_direction;
         }
 
@@ -173,7 +172,7 @@ public class OOBattleship {
             return collision_check;
         }
 
-        private Graphics createBoardDisplay() {
+        private Graphics2D createBoardDisplay() {
             // Create Drawing Panel with a size of 330 x 330
             DrawingPanel battlefield = new DrawingPanel(330, 330);
 
@@ -181,7 +180,7 @@ public class OOBattleship {
             battlefield.setBackground(Color.CYAN);
 
             // Create the graphics object to be used in setting up the board and making any updates
-            Graphics g = battlefield.getGraphics();
+            Graphics2D g = battlefield.getGraphics();
 
             // Set font for the grid labels
             g.setFont(new Font("Monospaced", Font.BOLD, 15));
@@ -204,7 +203,7 @@ public class OOBattleship {
             return g;
         }
 
-        private Graphics createTargetGridDisplay() {
+        private Graphics2D createTargetGridDisplay() {
             // Create Drawing Panel with a size of 330 x 330
             DrawingPanel battlefield = new DrawingPanel(330, 330);
 
@@ -212,7 +211,7 @@ public class OOBattleship {
             battlefield.setBackground(Color.CYAN);
 
             // Create the graphics object to be used in setting up the board and making any updates
-            Graphics g = battlefield.getGraphics();
+            Graphics2D g = battlefield.getGraphics();
 
             // Set font for the grid labels
             g.setFont(new Font("Monospaced", Font.BOLD, 15));
@@ -287,8 +286,7 @@ public class OOBattleship {
             for (int row = 0; row < 10; row++) {
                 for (int column = 0; column < 10; column++) {
                     if (opp.getTargetGrid()[row][column].equals("X")) {
-                        boardDisplay.setColor(Color.RED);
-                        boardDisplay.drawString("X", 30 * column + 31, 30 * row + 60);
+                        drawExplosion(boardDisplay, column, row, 30);
                     }
                     else if (opp.getTargetGrid()[row][column].equals("O")) {
                         boardDisplay.setColor(Color.WHITE);
@@ -322,8 +320,7 @@ public class OOBattleship {
             for (int row = 0; row < 10; row++) {
                 for (int column = 0; column < 10; column++) {
                     if (targetGrid[row][column].equals("X")) {
-                        targetGridDisplay.setColor(Color.RED);
-                        targetGridDisplay.drawString("X", 30 * column + 31, 30 * row + 60);
+                        drawExplosion(targetGridDisplay, column, row, 30);
                     }
                     else if (targetGrid[row][column].equals("O")) {
                         targetGridDisplay.setColor(Color.WHITE);
@@ -471,6 +468,28 @@ public class OOBattleship {
         }
     }
 
+
+    public static void drawExplosion(Graphics2D board, int x, int y, int r) {
+        // Ovals
+        board.setColor(Color.ORANGE);
+        board.fillOval (r * x + 31, r * y + 31, 29, 29);
+        board.setColor(Color.RED);
+        board.fillOval (r * x + 38, r * y + 38, 15, 15);
+        board.setColor(Color.YELLOW);
+        board.fillOval (r * x + 43, r * y + 43, 5, 5);
+        board.setColor(Color.DARK_GRAY);
+        board.drawOval(r * x + 31, r * y + 31, 29, 29);
+        // lines
+        // top left
+        board.drawLine(r * x + 35, r * y + 35, r * x + 30, r * y + 30);
+        // top right
+        board.drawLine(r * x + 55, r * y + 35, r * x + 60, r * y + 30);
+        // bottom left
+        board.drawLine(r * x + 35, r * y + 55, r * x + 30, r * y + 60);
+        // bottom right
+        board.drawLine(r * x + 55, r * y + 55, r * x + 60, r * y + 60);
+    }
+
     public static void main(String[] args) {
         //Main gameplay here
         System.out.println("Welcome to Battleship!");
@@ -541,7 +560,7 @@ public class OOBattleship {
 
             System.out.println("Player 1 place your boats\n");
             P1.populateBoard();
-            System.out.println("Type anything to continue -> ");
+            System.out.print("Type anything to continue -> ");
             gameInput.nextLine();
             P1.hideBoardDisplay();
             P1.hideTargetGridDisplay();
@@ -549,7 +568,7 @@ public class OOBattleship {
 
             System.out.println("Player 2 place your boats\n");
             P2.populateBoard();
-            System.out.println("Type anything to start the game -> ");
+            System.out.print("Type anything to start the game -> ");
             gameInput.nextLine();
             P2.hideBoardDisplay();
             P2.hideTargetGridDisplay();

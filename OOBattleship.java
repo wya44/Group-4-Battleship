@@ -2,6 +2,37 @@ import java.awt.*;
 import java.util.*;
 
 public class OOBattleship {
+    // This is the boat class, which stores the coordinates of each boat in each player's fleet
+    public static class Boat {
+        // Each boat is a 2D array of coordinates. The first dimension is the sections of the boat
+        // The second dimension is the coordinate pairs
+        int[][] boat;
+
+        ////////////////////////////////////////////////////////////
+        // Constructor
+        ////////////////////////////////////////////////////////////
+        public Boat(int boatName) {
+            if (boatName == 5) boat = new int[][]{{-1, -1}, {-1, -1}, {-1, -1}, {-1, -1}, {-1, -1}};
+            else if (boatName == 4) boat = new int[][]{{-1, -1}, {-1, -1}, {-1, -1}, {-1, -1}};
+            else if (boatName == 3) boat = new int[][]{{-1, -1}, {-1, -1}, {-1, -1}};
+            else boat = new int[][]{{-1, -1}, {-1, -1}};
+        }
+
+        ////////////////////////////////////////////////////////////
+        // Getter
+        ////////////////////////////////////////////////////////////
+        public int[][] getBoat() { return boat; }
+
+        ////////////////////////////////////////////////////////////
+        // Setter
+        ////////////////////////////////////////////////////////////
+        public void setCoordinates(int section, int row, int column) {
+            boat[section][0] = row;
+            boat[section][1] = column;
+        }
+    }
+
+
     // This is the Player class, which stores all the necessary data for each player in the game
     // Each player has a name, board, target grid, corresponding displays,
     // coordinates, and 2 stacks and an integer array for tracking sunk ships
@@ -36,11 +67,8 @@ public class OOBattleship {
         // This is the display that shows the player's target grid
         Graphics2D targetGridDisplay;
 
-        // This is the coordinate array -> it stores the coordinates of each of the player's boats
-        int[][][] coords = {{{-1, -1}, {-1, -1}, {-1, -1}, {-1, -1}, {-1, -1}},
-                {{-1, -1}, {-1, -1}, {-1, -1}, {-1, -1}},
-                {{-1, -1}, {-1, -1}, {-1, -1}},
-                {{-1, -1}, {-1, -1}}};
+        // This is the coordinate array -> it stores the player's fleet of boats (each boat stores its own coords)
+        Boat[] coords = {new Boat(5), new Boat(4), new Boat(3), new Boat(2)};
 
         // This is the stack that keeps track of the most recent boat sunk by the player
         Stack<Integer> currentBoatsSunk;
@@ -55,7 +83,6 @@ public class OOBattleship {
         // This is the player's name
         String name;
 
-
         ////////////////////////////////////////////////////////////
         // Constructor
         ////////////////////////////////////////////////////////////
@@ -68,7 +95,6 @@ public class OOBattleship {
             if (!name.equals("com")) targetGridDisplay = createTargetGridDisplay();
         }
 
-
         ////////////////////////////////////////////////////////////
         //Getters
         ////////////////////////////////////////////////////////////
@@ -78,7 +104,7 @@ public class OOBattleship {
 
         public String[][] getTargetGrid() { return targetGrid; }
 
-        public int[][][] getCoords() { return coords; }
+        public Boat[] getCoords() { return coords; }
 
         public int getHowManySunk() { return currentBoatsSunk.size(); }
 
@@ -92,12 +118,10 @@ public class OOBattleship {
             else return previousBoatsSunk.peek();
         }
 
-
         ////////////////////////////////////////////////////////////
         // Setters
         ////////////////////////////////////////////////////////////
         public void addPreviousBoatSunk(int boat) { previousBoatsSunk.add(boat); }
-
 
         ////////////////////////////////////////////////////////////
         // Class methods
@@ -108,8 +132,7 @@ public class OOBattleship {
             int boat_section = 0;
             for (int column = startColumn; column < (startColumn + boatLength); column++) {
                 board[startRow][column] = "B";
-                coords[5 - boatLength][boat_section][0] = startRow + 1;
-                coords[5 - boatLength][boat_section][1] = column + 1;
+                coords[5 - boatLength].setCoordinates(boat_section, startRow + 1, column + 1);
                 boat_section++;
             }
         }
@@ -119,8 +142,7 @@ public class OOBattleship {
             int boat_section = 0;
             for (int row = startRow; row < (startRow + boatLength); row++) {
                 board[row][startColumn] = "B";
-                coords[5 - boatLength][boat_section][0] = row + 1;
-                coords[5 - boatLength][boat_section][1] = startColumn + 1;
+                coords[5 - boatLength].setCoordinates(boat_section, row + 1, startColumn + 1);
                 boat_section++;
             }
         }
@@ -281,11 +303,12 @@ public class OOBattleship {
             int current_boat_index = 5 - boat_len;
 
             // Get the starting coordinates from the coordinate list for the current boat
-            int start_row = coords[current_boat_index][0][0], start_column = coords[current_boat_index][0][1];
+            int start_row = coords[current_boat_index].getBoat()[0][0];
+            int start_column = coords[current_boat_index].getBoat()[0][1];
 
             // If first section row is less than second section row, boat is vertical
             // Otherwise, the boat is horizontal --> Print boat in the proper direction and outline it in DARK GRAY
-            if (coords[current_boat_index][0][0] < coords[current_boat_index][1][0]) {
+            if (coords[current_boat_index].getBoat()[0][0] < coords[current_boat_index].getBoat()[1][0]) {
                 boardDisplay.fillOval(start_column * 30, start_row * 30, 30, boat_len * 30);
                 boardDisplay.setColor(Color.DARK_GRAY);
                 boardDisplay.drawOval(start_column * 30, start_row * 30, 30, boat_len * 30);
@@ -493,9 +516,9 @@ public class OOBattleship {
         public void didISinkABoat(Player opp) {
             for (int boat = 0; boat < 4; boat++) {
                 int boat_check = 0;
-                for (int section = 0; section < opp.getCoords()[boat].length; section++) {
-                    if (opp.getBoard()[opp.getCoords()[boat][section][0] - 1]
-                            [opp.getCoords()[boat][section][1] - 1].equals("B")) boat_check++;
+                for (int section = 0; section < opp.getCoords()[boat].getBoat().length; section++) {
+                    if (opp.getBoard()[opp.getCoords()[boat].getBoat()[section][0] - 1]
+                            [opp.getCoords()[boat].getBoat()[section][1] - 1].equals("B")) boat_check++;
                 }
                 if (boat_check == 0 && boatsSunk[boat] != 1) {
                     if (boat == 0) {
@@ -524,8 +547,6 @@ public class OOBattleship {
     ////////////////////////////////////////////////////////////
     // Main gameplay method
     ////////////////////////////////////////////////////////////
-
-    // This is the main code of the game
     public static void main(String[] args) {
         System.out.println("Welcome to Battleship!");
         String mode = modeSelect();
@@ -674,7 +695,6 @@ public class OOBattleship {
                 }
                 round++;
             }
-
             //vs endgame stuff
             clearScreen();
             if (!defaultWinner.isEmpty()) {
@@ -713,14 +733,14 @@ public class OOBattleship {
         board.fillOval (r * x + 43, r * y + 43, 5, 5);
         board.setColor(Color.DARK_GRAY);
         board.drawOval(r * x + 31, r * y + 31, 29, 29);
-        // lines
-        // top left
+        // Lines
+        // Top left
         board.drawLine(r * x + 35, r * y + 35, r * x + 30, r * y + 30);
-        // top right
+        // Top right
         board.drawLine(r * x + 55, r * y + 35, r * x + 60, r * y + 30);
-        // bottom left
+        // Bottom left
         board.drawLine(r * x + 35, r * y + 55, r * x + 30, r * y + 60);
-        // bottom right
+        // Bottom right
         board.drawLine(r * x + 55, r * y + 55, r * x + 60, r * y + 60);
     }
 
